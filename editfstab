@@ -36,19 +36,18 @@ my %dirlist =   ( hd2		=> "ntfs",
 # the file fstab to edit
 my $fstab = "fstab.bak";
 
-# list for fstab in memory
-my @fstab = ();
-
 # sub to delete all lines in /etc/fstab which contain
 # the directory from dirlist. Done to prevent multiple inclusions.
 # fstab is read into @fstab. Lines containing the directory
 # from dirlist are not pushed to @fstab.
-# parameter passed is a ref to @fstab
-sub deletedir {
+# the @fstab is then written to the file fstab
+# and the lines containing directory in the hash
+# are appended to fstab file.
+sub editfstab {
 
-	# ref to fstab
-	my $fstabref = $_[0];
-	
+	# list for fstab in memory
+	my @fstab = ();
+
 	# open file for reading so the lines with dir in dir list can be deleted
 	# to prevent multiple inclusions
 	open (FH, "<", $fstab) or die "Could not open $fstab: $!\n";
@@ -71,34 +70,47 @@ sub deletedir {
 	# close the file
 	close FH;
 
-# remove the old fstab
-unlink $fstab;
+	# remove the old fstab
+	unlink $fstab;
 
-# open the file for appending
-open FW, ">>", $fstab or die "Could not open $fstab: $!\n";
+	# 
+	# open the file for appending
+	open FW, ">>", $fstab or die "Could not open $fstab: $!\n";
 
-# write the file with directories from dir list removed
-foreach my $line (@fstab) {
-	print FW "$line\n";
-}
-
-# now append all my custom directory entries to the file
-my $ntfsvfatoptions = "noauto,uid=robert,gid=robert,umask=007";
-my $ext4options = "defaults,noauto";
-
-foreach my $dir (keys(%dirlist)) {
-	# for ntfs
-	if ($dirlist{$dir} eq "ntfs") {
-		printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ntfs", $ntfsvfatoptions, "0", "0\n";
-	# for ext4
-	} elsif ($dirlist{$dir} eq "ext4") {
-		printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ext4", $ext4options, "0", "0\n";
-	#for vfat
-	} elsif ($dirlist{$dir} eq "vfat") {
-		printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "vfat", $ntfsvfatoptions, "0", "0\n";
+	# write the file with directories from dir list removed
+	foreach my $line (@fstab) {
+		print FW "$line\n";
 	}
 
-}
-# close the file
-close FW;
+	# now write a comment in the file to indicate the
+	# new entries follow
+	print FW "\n";
+	print FW "#################################################################\n";
+	print FW "######### Edited by editfstab: new entries follow ###############\n";
+	print FW "#################################################################\n";
+	
+	# now append all my custom directory entries to the file
+	my $ntfsvfatoptions = "noauto,uid=robert,gid=robert,umask=007";
+	my $ext4options = "defaults,noauto";
 
+	foreach my $dir (keys(%dirlist)) {
+		# for ntfs
+		if ($dirlist{$dir} eq "ntfs") {
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ntfs", $ntfsvfatoptions, "0", "0\n";
+		# for ext4
+		} elsif ($dirlist{$dir} eq "ext4") {
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ext4", $ext4options, "0", "0\n";
+		#for vfat
+		} elsif ($dirlist{$dir} eq "vfat") {
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "vfat", $ntfsvfatoptions, "0", "0\n";
+		}
+
+	}
+	# close the file
+	close FW;
+}
+
+#############################################################################
+# main entry
+
+editfstab
