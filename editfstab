@@ -4,12 +4,16 @@
 # fstab is then edited to include all disk which have the same names
 # as the directories. Multiple inclusions are prevented by deleting
 # the directory line in fstab first.
+# command line options are -d for make directories, -e for edit fstab, -h for help
 use strict;
 use warnings;
 use Getopt::Std;
 
 # mount point for directories
 my $mtpt = "/home/robert/junk";
+
+# the file fstab to edit
+my $fstab = "fstab.bak";
 
 # hash containing directories and file systems
 my %dirlist =   ( hd2		=> "ntfs",
@@ -36,9 +40,6 @@ my %dirlist =   ( hd2		=> "ntfs",
 		  tosh8		=> "vfat",
 		  xmini		=> "vfat",
 		  king		=> "vfat");
-
-# the file fstab to edit
-my $fstab = "fstab.bak";
 
 # sub to delete all lines in /etc/fstab which contain
 # the directory from dirlist. Done to prevent multiple inclusions.
