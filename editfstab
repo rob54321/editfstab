@@ -8,6 +8,10 @@ use strict;
 use warnings;
 use Getopt::Std;
 
+# mount point for directories
+my $mtpt = "/home/robert/junk";
+
+# hash containing directories and file systems
 my %dirlist =   ( hd2		=> "ntfs",
 		  hd3		=> "ntfs",
 		  MACRIUM	=> "vfat",
@@ -110,7 +114,43 @@ sub editfstab {
 	close FW;
 }
 
+# make all the directories in the dirlist under /mnt
+sub makedirs {
+	# if dir does not exist make it.
+	my $dir;
+	foreach $dir (keys %dirlist) {
+		mkdir "$mtpt/$dir" unless -d "$mtpt/$dir";
+
+		# set the ownership to robert
+		chown 1000, 1000, ("$mtpt/$dir");
+	}
+
+
+}
+
+# sub to print usage
+sub usage {
+	print "-d\tmake directories in $mtpt\n";
+	print "-e\tedit fstab to include mounts\n";
+	print "-h\tshow this help\n";
+}
+
 #############################################################################
 # main entry
 
-editfstab
+# get command line options
+# -d makes directories in /mnt
+# -e edits fstab
+# -u prints usage
+our ($opt_d, $opt_e, $opt_h);
+
+getopts('deh');
+
+# show usage
+usage if $opt_h;
+
+# make directories
+makedirs if $opt_d;
+
+# edit fstab
+editfstab if $opt_e;
