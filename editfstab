@@ -10,10 +10,10 @@ use warnings;
 use Getopt::Std;
 
 # mount point for directories
-my $mtpt = "/home/robert/junk";
+my $mtpt = "/mnt";
 
 # the file fstab to edit
-my $fstab = "fstab.bak";
+my $fstab = "/etc/fstab";
 
 # hash containing directories and file systems
 my %dirlist =   ( hd2		=> "ntfs",
