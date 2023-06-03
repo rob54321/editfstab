@@ -113,6 +113,9 @@ sub editfstab {
 	}
 	# close the file
 	close FW;
+
+	# reload fstab
+	system("systemctl daemon-reload");
 }
 
 # make all the directories in the dirlist under /mnt
