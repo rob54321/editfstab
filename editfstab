@@ -126,7 +126,7 @@ sub makedirs {
 		mkdir "$mtpt/$dir" unless -d "$mtpt/$dir";
 
 		# set the ownership to robert
-		chown 1000:1000, ("$mtpt/$dir");
+		chown 1000, 1000, ("$mtpt/$dir");
 	}
 
 
