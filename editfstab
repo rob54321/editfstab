@@ -50,6 +50,9 @@ my %dirlist =   ( hd2		=> "ntfs",
 # are appended to fstab file.
 sub editfstab {
 
+	# make a backup copy of fstab
+	system("cp -vf /etc/fstab /etc/fstab.editfstab") unless -f "/etc/fstab.editfstab";
+	
 	# list for fstab in memory
 	my @fstab = ();
 
