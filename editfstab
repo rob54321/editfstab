@@ -64,15 +64,12 @@ sub editfstab {
 	while (my $line = <FH>) {
 		chomp($line);
 		# get each line and push if it is not in dirlist
-		# set a flag to true if the dir is in dirlist
-		my $dirflag = "false";
 		foreach my $dir (keys(%dirlist)) {
-			if ($line =~ /$dir/) {
-				$dirflag = "true";
+			if ($line !~ /$dir/) {
+				# push the line to the fstab list if the dirflag is flase
+				push @fstab, $line;
 			}
 		}
-		# push the line to the fstab list if the dirflag is flase
-		push @fstab, $line unless $dirflag eq "true";
 	}
 
 	# close the file
