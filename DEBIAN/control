@@ -1,0 +1,8 @@
+Package: editfstab
+Version: 1.0.0
+Architecture: all
+Maintainer: Robert Key robkey@mighty.co.za
+Depends: perl, stedit
+Section: myown
+Priority: optional
+Description: This package edits fstab after and install of linux on ubuntu, rpi, live system. A has contains all filesystems.
