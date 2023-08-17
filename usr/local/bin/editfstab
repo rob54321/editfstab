@@ -13,7 +13,7 @@ use Getopt::Std;
 my $mtpt = "/mnt";
 
 # the file fstab to edit
-my $fstab = "/etc/fstab";
+my $fstab = "/home/robert/fstab";
 
 # hash containing directories and file systems
 my %dirlist =   ( hd2		=> "ntfs",
@@ -51,7 +51,7 @@ my %dirlist =   ( hd2		=> "ntfs",
 sub editfstab {
 
 	# make a backup copy of fstab
-	system("cp -vf /etc/fstab /etc/fstab.editfstab") unless -f "/etc/fstab.editfstab";
+	system("cp -vf $fstab /home/robert/fstab.editfstab") unless -f "/home/robert/fstab.editfstab";
 	
 	# list for fstab in memory
 	my @fstab = ();
@@ -61,15 +61,19 @@ sub editfstab {
 	open (FH, "<", $fstab) or die "Could not open $fstab: $!\n";
 
 	# read each line and push it onto a list if it does not contain any directory in the dir list
-	while (my $line = <FH>) {
+	LINE: while (my $line = <FH>) {
 		chomp($line);
 		# get each line and push if it is not in dirlist
-		foreach my $dir (keys(%dirlist)) {
-			if ($line !~ /$dir/) {
-				# push the line to the fstab list if the dirflag is flase
-				push @fstab, $line;
+		# set a flag to true if the dir is in dirlist
+		my $dirfoundflag = "false";
+		DIR: foreach my $dir (keys(%dirlist)) {
+			if ($line =~ /$dir/) {
+				$dirfoundflag = "true";
+				last DIR;
 			}
 		}
+		# push the line to the fstab list if the dirflag is flase
+		push @fstab, $line if $dirfoundflag eq "false";
 	}
 
 	# close the file
@@ -98,24 +102,26 @@ sub editfstab {
 	my $ntfsvfatoptions = "noauto,uid=robert,gid=robert,umask=007";
 	my $ext4options = "defaults,noauto";
 
-	foreach my $dir (keys(%dirlist)) {
+my $i = 1;
+	foreach my $dir (sort(keys(%dirlist))) {
 		# for ntfs
 		if ($dirlist{$dir} eq "ntfs") {
-			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ntfs", $ntfsvfatoptions, "0", "0\n";
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "$i LABEL=$dir", "/mnt/$dir", "ntfs", $ntfsvfatoptions, "0", "0\n";
 		# for ext4
 		} elsif ($dirlist{$dir} eq "ext4") {
-			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ext4", $ext4options, "0", "0\n";
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "$i LABEL=$dir", "/mnt/$dir", "ext4", $ext4options, "0", "0\n";
 		#for vfat
 		} elsif ($dirlist{$dir} eq "vfat") {
-			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "vfat", $ntfsvfatoptions, "0", "0\n";
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "$i LABEL=$dir", "/mnt/$dir", "vfat", $ntfsvfatoptions, "0", "0\n";
 		}
+		$i++;
 
 	}
 	# close the file
 	close FW;
 
 	# reload fstab
-	system("systemctl daemon-reload");
+#	system("systemctl daemon-reload");
 }
 
 # make all the directories in the dirlist under /mnt
