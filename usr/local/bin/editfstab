@@ -53,6 +53,11 @@ sub editfstab {
 	# make a backup copy of fstab
 	system("cp -vf $fstab /home/robert/fstab.editfstab") unless -f "/home/robert/fstab.editfstab";
 	
+	# only do this ONCE#############################
+	# now write a comment in the file to indicate the
+	# new entries follow
+	my $header = "######### Edited by editfstab: new entries follow ###############\n";
+
 	# list for fstab in memory
 	my @fstab = ();
 
@@ -61,19 +66,21 @@ sub editfstab {
 	open (FH, "<", $fstab) or die "Could not open $fstab: $!\n";
 
 	# read each line and push it onto a list if it does not contain any directory in the dir list
-	LINE: while (my $line = <FH>) {
+	while (my $line = <FH>) {
 		chomp($line);
 		# get each line and push if it is not in dirlist
 		# set a flag to true if the dir is in dirlist
-		my $dirfoundflag = "false";
-		DIR: foreach my $dir (keys(%dirlist)) {
+		my $foundflag = "false";
+		foreach my $dir (keys(%dirlist)) {
 			if ($line =~ /$dir/) {
-				$dirfoundflag = "true";
-				last DIR;
+				$foundflag = "true";
+			} elsif ($line =~ /editfstab/) {
+				# header found do not copy it
+				$foundflag = "true";
 			}
 		}
 		# push the line to the fstab list if the dirflag is flase
-		push @fstab, $line if $dirfoundflag eq "false";
+		push @fstab, $line if $foundflag eq "false";
 	}
 
 	# close the file
@@ -86,35 +93,29 @@ sub editfstab {
 	# open the file for appending
 	open FW, ">>", $fstab or die "Could not open $fstab: $!\n";
 
+	# write the header
+	print FW $header;
 	# write the file with directories from dir list removed
 	foreach my $line (@fstab) {
 		print FW "$line\n";
 	}
 
-	# now write a comment in the file to indicate the
-	# new entries follow
-	print FW "\n";
-	print FW "#################################################################\n";
-	print FW "######### Edited by editfstab: new entries follow ###############\n";
-	print FW "#################################################################\n";
 	
 	# now append all my custom directory entries to the file
 	my $ntfsvfatoptions = "noauto,uid=robert,gid=robert,umask=007";
 	my $ext4options = "defaults,noauto";
 
-my $i = 1;
 	foreach my $dir (sort(keys(%dirlist))) {
 		# for ntfs
 		if ($dirlist{$dir} eq "ntfs") {
-			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "$i LABEL=$dir", "/mnt/$dir", "ntfs", $ntfsvfatoptions, "0", "0\n";
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ntfs", $ntfsvfatoptions, "0", "0\n";
 		# for ext4
 		} elsif ($dirlist{$dir} eq "ext4") {
-			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "$i LABEL=$dir", "/mnt/$dir", "ext4", $ext4options, "0", "0\n";
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "ext4", $ext4options, "0", "0\n";
 		#for vfat
 		} elsif ($dirlist{$dir} eq "vfat") {
-			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "$i LABEL=$dir", "/mnt/$dir", "vfat", $ntfsvfatoptions, "0", "0\n";
+			printf FW "%-20s %-20s %-10s %-40s %5s %5s", "LABEL=$dir", "/mnt/$dir", "vfat", $ntfsvfatoptions, "0", "0\n";
 		}
-		$i++;
 
 	}
 	# close the file
