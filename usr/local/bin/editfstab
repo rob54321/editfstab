@@ -13,7 +13,7 @@ use Getopt::Std;
 my $mtpt = "/mnt";
 
 # the file fstab to edit
-my $fstab = "/home/robert/fstab";
+my $fstab = "/etc/fstab";
 
 # hash containing directories and file systems
 my %dirlist =   ( hd2		=> "ntfs",
@@ -51,7 +51,7 @@ my %dirlist =   ( hd2		=> "ntfs",
 sub editfstab {
 
 	# make a backup copy of fstab
-	system("cp -vf $fstab /home/robert/fstab.editfstab") unless -f "/home/robert/fstab.editfstab";
+	system("cp -vf $fstab /etc/fstab.editfstab") unless -f "/etc/fstab.editfstab";
 	
 	# only do this ONCE#############################
 	# now write a comment in the file to indicate the
