@@ -18,10 +18,9 @@ my $fstab = "/etc/fstab";
 # hash containing directories and file systems
 my %dirlist =   ( hd2		=> "ntfs",
 		  hd3		=> "ntfs",
-		  MACRIUM	=> "vfat",
-		  MSIRECOVERY	=> "vfat",
-		  RECOVERALL	=> "vfat",
-		  MSISOURCES	=> "ntfs",
+		  LINUXLIVE	=> "vfat",
+		  RECOVERY	=> "vfat",
+		  MCTREC	=> "vfat",
 		  tosh		=> "ntfs",
 		  ele		=> "ntfs",
 		  myp		=> "ntfs",
