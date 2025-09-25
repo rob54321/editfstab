@@ -143,12 +143,25 @@ sub makedirs {
 sub removedirs {
 	# sub to remove all made directories
 	# if they are empty
-	my $dir;
-	foreach $dir (keys %dirlist) {
+	foreach my $dir (keys %dirlist) {
 		# check if directory is empty before deleting it
-		opendir (my $dir, "/mnt/");
-		my @dirlist 
-
+		my $rc = opendir (my $dh, "$mtpt/$dir");
+		# check if the directory exists
+		if ($rc) {
+			# check if each directory is empty
+			my @filelist = readdir($dh);
+			if (scalar(@filelist) == 2) {
+				# . and .. are always in the directory
+				# directory is empty
+				print "removing /$mtpt/$dir\n";
+				close ($dh);
+				rmdir ("/$mtpt/$dir");
+			} else {
+				# the directory is not empty
+				print "/$mtpt/$dir is not empty\n";
+				close($dh);
+			}
+		}
 	}
 }
 
