@@ -138,11 +138,27 @@ sub makedirs {
 
 }
 
+# sub to remove all made directories.
+# usually called by postrm of this package
+sub removedirs {
+	# sub to remove all made directories
+	# if they are empty
+	my $dir;
+	foreach $dir (keys %dirlist) {
+		# check if directory is empty before deleting it
+		opendir (my $dir, "/mnt/");
+		my @dirlist 
+
+	}
+}
+
 # sub to print usage
 sub usage {
 	print "-d\tmake directories in $mtpt\n";
 	print "-e\tedit fstab to include mounts\n";
+	print "-r\tremove all made directories\n";
 	print "-h\tshow this help\n";
+	exit 0;
 }
 
 #############################################################################
@@ -152,15 +168,22 @@ sub usage {
 # -d makes directories in /mnt
 # -e edits fstab
 # -u prints usage
-our ($opt_d, $opt_e, $opt_h);
+our ($opt_d, $opt_e, $opt_h, $opt_r);
 
-getopts('deh');
+getopts('dehr');
 
 # show usage
 usage if $opt_h;
+
+# check that -d and -r are not given on the command line
+# as they are mutually exclusive.
+die "-d and -r are mutually exclusive. Exiting ..." if $opt_d && $opt_r;
 
 # make directories
 makedirs if $opt_d;
 
 # edit fstab
 editfstab if $opt_e;
+
+# remove made directories
+removedirs if $opt_r;
