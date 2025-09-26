@@ -124,22 +124,32 @@ sub editfstab {
 	system("systemctl daemon-reload");
 }
 
+# sub to remove all edits from fstab.
+# this option is called by initialise-linux:postrm
+sub restorefstab {
+	#delete each line in fstab
+	# which contains the mount point directory
+	# in the hash dirlist.
+	foreach my $dir (keys %dirlist) {
+		# remove the line
+		system("/usr/local/bin/stedit.pl -f /etc/fstab -d \"/^LABEL=$dir/\" -w");
+	}
+	system("/usr/local/bin/stedit.pl -f /etc/fstab -l");
+}
+
 # make all the directories in the dirlist under /mnt
 sub makedirs {
 	# if dir does not exist make it.
-	my $dir;
-	foreach $dir (keys %dirlist) {
+	foreach my $dir (keys %dirlist) {
 		mkdir "$mtpt/$dir" unless -d "$mtpt/$dir";
 
 		# set the ownership to robert
 		chown 1000, 1000, ("$mtpt/$dir");
 	}
-
-
 }
 
 # sub to remove all made directories.
-# usually called by postrm of this package
+# usually called initialise-linux:postrm
 sub removedirs {
 	# sub to remove all made directories
 	# if they are empty
@@ -169,6 +179,7 @@ sub removedirs {
 sub usage {
 	print "-d\tmake directories in $mtpt\n";
 	print "-e\tedit fstab to include mounts\n";
+	print "-R\trestore fstab\n";
 	print "-r\tremove all made directories\n";
 	print "-h\tshow this help\n";
 	exit 0;
@@ -180,10 +191,12 @@ sub usage {
 # get command line options
 # -d makes directories in /mnt
 # -e edits fstab
+# -r remove all made directories
+# -R restore fstab
 # -u prints usage
-our ($opt_d, $opt_e, $opt_h, $opt_r);
+our ($opt_d, $opt_e, $opt_h, $opt_r, $opt_R);
 
-getopts('dehr');
+getopts('dehrR');
 
 # show usage
 usage if $opt_h;
@@ -200,3 +213,6 @@ editfstab if $opt_e;
 
 # remove made directories
 removedirs if $opt_r;
+
+# restore fstab
+restorefstab if $opt_R;
