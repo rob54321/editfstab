@@ -1,0 +1,7 @@
+#!/bin/bash
+if test -x /usr/local/bin/editfstab; then
+	# remove the made directories
+	/usr/local/bin/editfstab -r
+	# restore fstab
+	/usr/local/bin/editfstab -R
+fi
