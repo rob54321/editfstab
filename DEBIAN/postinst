@@ -1,0 +1,6 @@
+#!/bin/bash
+# if install then make directories and edit fstab
+if test "$1" = "install"; then
+	/usr/local/bin/editfstab -d
+	/usr/local/bin/editfstab -e
+fi
