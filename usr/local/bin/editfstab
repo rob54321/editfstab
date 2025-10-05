@@ -49,6 +49,10 @@ my %dirlist =   ( hd2		=> "ntfs",
 # are appended to fstab file.
 sub editfstab {
 
+	# in the live system there is no /etc/fstab. The file
+	# is created after boot time.
+	return 0 unless -f "$fstab";
+
 	# make a backup copy of fstab
 	system("cp -vf $fstab $fstab.editfstab") unless -f "$fstab.editfstab";
 	
@@ -127,6 +131,12 @@ sub editfstab {
 # sub to remove all edits from fstab.
 # this option is called by initialise-linux:postrm
 sub restorefstab {
+	# in the live system there is no /etc/fstab
+	# until after boot time.
+	# if there is not /etc/fstab
+	# return 0
+	return 0 unless -f "$fstab";
+
 	#delete each line in fstab
 	# which contains the mount point directory
 	# in the hash dirlist.

@@ -8,6 +8,8 @@ if test "$1" = "remove"; then
 		# remove the made directories
 		/usr/local/bin/editfstab -r
 		# restore fstab
+		# in the live system there is no /etc/fstab
+		# so -R does nothing.
 		/usr/local/bin/editfstab -R
 	fi
 fi

@@ -1,5 +1,8 @@
 #!/bin/bash
 # if install then make directories and edit fstab
+# in the live system there is no fstab
+# so editfstab -e will do nothing
+# this is not an error
 if test "$1" = "configure"; then
 	/usr/local/bin/editfstab -d
 	/usr/local/bin/editfstab -e
